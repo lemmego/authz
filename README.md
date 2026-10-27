@@ -17,7 +17,7 @@ if err := authz.Authorize(c, "launch.update", launch); err != nil {
 }
 ```
 
-## Why it is a separate package from `auth`
+## How it relates to `auth`
 
 `auth` establishes **who** is making a request. `authz` decides **what they
 may do**, which is a separate question with a separate answer. Keeping them
@@ -63,10 +63,10 @@ func Register(r *authz.Registry) {
 | **Resource** | `Register[U, R]` | `Can`, `Explain`, `Authorize` | "may you edit *this* launch" |
 | **Gate** | `Gate[U]` | `Allowed`, `ExplainGate`, `AuthorizeGate` | "may you create launches at all" |
 
-The two are **not interchangeable**, deliberately. Asking a resource ability
-through `AuthorizeGate` is refused rather than silently passed a nil resource,
-because a rule written to inspect a resource and handed none would read as a
-denial of everything — or, worse, as a pass.
+The two are **not interchangeable**. Asking a resource ability through
+`AuthorizeGate` is refused rather than silently passed a nil resource, because
+a rule written to inspect a resource and handed none would read as a denial of
+everything — or, worse, as a pass.
 
 ## Decisions carry a reason
 
@@ -185,14 +185,14 @@ not something `authz` should be deciding.
 r.Post("/launch", auth.Protected, authz.Gated("launch.create"), handlers.CreateLaunch)
 ```
 
-## Deliberate omissions
+## Limitations
 
 No roles or permissions tables, no ABAC, no policy caching. A rule is a Go
 function over data you have already loaded; the moment it needs its own
 storage it stops being a policy and becomes a feature, and it should live in
 the application where it can be migrated and tested like anything else.
 
-## Failure modes, and what each does
+## Failure modes
 
 | Situation | Result |
 |---|---|
