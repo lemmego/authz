@@ -185,6 +185,39 @@ not something `authz` should be deciding.
 r.Post("/launch", auth.Protected, authz.Gated("launch.create"), handlers.CreateLaunch)
 ```
 
+## Watching the decisions
+
+`Registry.Observe` is told about every decision, which is how an
+authorization panel — `lemmego/observe`'s, or your own audit log — gets built
+without a hook per call site:
+
+```go
+func Policies(r *authz.Registry) {
+    authz.Register(r, "launch.update", ownLaunch())
+
+    r.Observe(func(ctx context.Context, o authz.Observation) {
+        slog.InfoContext(ctx, "authz",
+            "ability", o.Ability, "allowed", o.Decision.Allowed, "reason", o.Decision.Reason)
+    })
+}
+```
+
+Every decision means every one, including the denials this package reaches
+**without consulting a rule**: an unregistered ability, a gate called with a
+resource, an anonymous request. Those are the ones worth seeing — failing
+closed turns a typo into an ordinary-looking 403, and an observer is what
+stops it looking ordinary.
+
+An observer runs synchronously on the goroutine that asked, is handed the
+request's context so an entry can be attributed, and a panic in it is
+contained per observer: an authorization check must not be turnable into a
+500 by something watching it. Registration is additive, so a debugger's
+observer does not displace an application's.
+
+`Observation.Subject` and `Resource` are the application's own values. An
+observer that records them is responsible for what it records — a user struct
+holds an email address and a password hash.
+
 ## Limitations
 
 No roles or permissions tables, no ABAC, no policy caching. A rule is a Go
