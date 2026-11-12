@@ -298,7 +298,7 @@ func (r *Registry) evaluate(c app.Context, subject any, ability string, resource
 	// typed nil — non-nil as an any, and a nil dereference on the first field
 	// access inside the rule.
 	if subject == nil {
-		return Deny("not authenticated")
+		return Deny(KeyUnauthenticated)
 	}
 
 	return rl.check(c, subject, resource)

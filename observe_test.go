@@ -109,10 +109,15 @@ func TestTheDenialsReachedWithoutARuleAreObservedToo(t *testing.T) {
 			reason: "no rule is registered",
 		},
 		{
+			// The key, not the sentence, and that is the right thing for an
+			// observer: a reason is resolved to prose at the error boundary,
+			// in the reader's language, so a debugging record holding the
+			// rendered text would change with whoever happened to trigger
+			// the request. The key is the stable identity.
 			name:     "an anonymous request",
 			policies: ownershipPolicies,
 			send:     func(a *apptest.App) { a.Get("/launch/can").Send() },
-			reason:   "not authenticated",
+			reason:   KeyUnauthenticated,
 		},
 	}
 

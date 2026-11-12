@@ -9,6 +9,11 @@ import "github.com/lemmego/api/app"
 // Policies is called once, at boot, with the registry — so every rule in the
 // application is reachable from one function and the set of them is
 // reviewable in one place.
+var (
+	_ app.Provider            = (*Provider)(nil)
+	_ app.PublishableProvider = (*Provider)(nil)
+)
+
 type Provider struct {
 	Policies func(r *Registry)
 }

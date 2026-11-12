@@ -78,9 +78,9 @@ func asError(c app.Context, decision Decision) error {
 		return c.InternalServerError(ErrNoRegistry)
 	}
 	if !auth.IsAuthenticated(c) && auth.AuthUser(c) == nil {
-		return c.Unauthorized(errors.New(reasonOr(decision, "not authenticated")))
+		return c.Unauthorized(errors.New(resolve(c, reasonOr(decision, KeyUnauthenticated))))
 	}
-	return c.Forbidden(errors.New(reasonOr(decision, "forbidden")))
+	return c.Forbidden(errors.New(resolve(c, reasonOr(decision, KeyForbidden))))
 }
 
 func reasonOr(d Decision, fallback string) string {

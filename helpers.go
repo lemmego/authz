@@ -18,12 +18,12 @@ func OwnedBy[U auth.UserProvider, R any](ownerID func(R) string) func(app.Contex
 		// An empty id on either side must never match. A resource with no
 		// owner and a user with no id would otherwise authorise each other.
 		if owner == "" || user.GetID() == "" {
-			return Deny("ownership could not be established")
+			return Deny(KeyOwnershipUnknown)
 		}
 		if owner == user.GetID() {
 			return Allow()
 		}
-		return Deny("you do not own this")
+		return Deny(KeyNotOwner)
 	}
 }
 
@@ -31,7 +31,7 @@ func OwnedBy[U auth.UserProvider, R any](ownerID func(R) string) func(app.Contex
 // Use it for "the owner or a moderator".
 func AnyOf[U, R any](rules ...func(app.Context, U, R) Decision) func(app.Context, U, R) Decision {
 	return func(c app.Context, user U, resource R) Decision {
-		decision := Deny("no rule allowed this")
+		decision := Deny(KeyNoRuleAllowed)
 		for _, rule := range rules {
 			if decision = rule(c, user, resource); decision.Allowed {
 				return decision

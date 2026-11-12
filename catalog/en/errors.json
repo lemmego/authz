@@ -1,0 +1,7 @@
+{
+  "unauthenticated": "not authenticated",
+  "forbidden": "forbidden",
+  "ownership_unknown": "ownership could not be established",
+  "not_owner": "you do not own this",
+  "no_rule_allowed": "no rule allowed this"
+}
